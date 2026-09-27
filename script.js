@@ -1,37 +1,28 @@
-// Smart Box by Amna - Real AI Direct Response Engine
-
 const chatForm = document.getElementById('chatForm');
 const userInput = document.getElementById('userInput');
 const chatBox = document.getElementById('chatBox');
 const setKeyBtn = document.getElementById('setKeyBtn');
 
-if (setKeyBtn) {
-    setKeyBtn.style.display = 'none'; // Hide key button as key is handled internally
-}
+if (setKeyBtn) setKeyBtn.style.display = 'none';
 
-// Form submit event
 chatForm.addEventListener('submit', async function(e) {
     e.preventDefault();
-
     const messageText = userInput.value.trim();
     if (!messageText) return;
 
-    // User Message Add Karein
     appendMessage(messageText, 'user');
     userInput.value = '';
 
-    // Typing Animation Show Karein
     const typingElement = showTypingIndicator();
 
-    // Real AI Response Fetch
     try {
-        const response = await fetchRealAI(messageText);
+        const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(messageText)}`);
+        const text = await response.text();
         typingElement.remove();
-        appendMessage(response, 'ai');
+        appendMessage(text, 'ai');
     } catch (error) {
         typingElement.remove();
-        appendMessage("Sorry, server busy hai. Please 2 second baad dobara koshish karein.", 'ai');
-        console.error(error);
+        appendMessage("Connection error. Please try again.", 'ai');
     }
 });
 
@@ -41,12 +32,7 @@ function appendMessage(text, sender) {
 
     const avatarDiv = document.createElement('div');
     avatarDiv.classList.add('avatar');
-    
-    if (sender === 'ai') {
-        avatarDiv.innerHTML = '<i class="fa-solid fa-robot"></i>';
-    } else {
-        avatarDiv.innerHTML = '<i class="fa-solid fa-user"></i>';
-    }
+    avatarDiv.innerHTML = sender === 'ai' ? '<i class="fa-solid fa-robot"></i>' : '<i class="fa-solid fa-user"></i>';
 
     const contentDiv = document.createElement('div');
     contentDiv.classList.add('message-content');
@@ -54,7 +40,6 @@ function appendMessage(text, sender) {
 
     messageDiv.appendChild(avatarDiv);
     messageDiv.appendChild(contentDiv);
-
     chatBox.appendChild(messageDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
@@ -69,28 +54,11 @@ function showTypingIndicator() {
 
     const contentDiv = document.createElement('div');
     contentDiv.classList.add('message-content');
-    contentDiv.innerHTML = `
-        <div class="typing-dots">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    `;
+    contentDiv.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div>`;
 
     messageDiv.appendChild(avatarDiv);
     messageDiv.appendChild(contentDiv);
     chatBox.appendChild(messageDiv);
-
     chatBox.scrollTop = chatBox.scrollHeight;
     return messageDiv;
-}
-
-// Real Free Open AI Fetcher
-async function fetchRealAI(promptText) {
-    const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(promptText)}?model=openai`);
-    if (!response.ok) {
-        throw new Error("Network error");
-    }
-    const text = await response.text();
-    return text;
 }
