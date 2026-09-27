@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Box by Amna - AI Assistant</title>
     <!-- CSS Style File link -->
     <link rel="stylesheet" href="style.css">
-    <!-- FontAwesome Icons for nice icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
 
     <div class="app-container">
-
+        
         <!-- Left Sidebar -->
         <aside class="sidebar">
             <div class="brand">
@@ -23,26 +21,27 @@
             </div>
             <p class="subtitle">Created by Amna</p>
 
-            <button class="new-chat-btn">
-                <i class="fa-solid fa-plus"></i> New Chat
+            <button class="new-chat-btn" id="setKeyBtn">
+                <i class="fa-solid fa-key"></i> Set / Change API Key
             </button>
 
             <div class="chat-history">
-                <p class="history-title">Recent Questions</p>
+                <p class="history-title">Features</p>
                 <ul>
-                    <li><i class="fa-regular fa-message"></i> What is Web Development?</li>
-                    <li><i class="fa-regular fa-message"></i> How AI works?</li>
+                    <li><i class="fa-solid fa-bolt"></i> Fast AI Responses</li>
+                    <li><i class="fa-solid fa-shield-halved"></i> Secure Key Input</li>
+                    <li><i class="fa-solid fa-code"></i> Built by Amna</li>
                 </ul>
             </div>
         </aside>
 
         <!-- Main Chat Area -->
         <main class="chat-main">
-
+            
             <!-- Top Header -->
             <header class="chat-header">
                 <h3><i class="fa-solid fa-sparkles"></i> Smart Box AI</h3>
-                <span class="status-badge">Online</span>
+                <span class="status-badge" id="statusBadge">Ready</span>
             </header>
 
             <!-- Chat Messages Display Window -->
@@ -51,7 +50,7 @@
                 <div class="message ai-message">
                     <div class="avatar"><i class="fa-solid fa-robot"></i></div>
                     <div class="message-content">
-                        Hello! I am <strong>Smart Box by Amna</strong>. How can I assist you today?
+                        Hello! I am <strong>Smart Box by Amna</strong>. Ask me anything!
                     </div>
                 </div>
             </div>
@@ -59,8 +58,7 @@
             <!-- Bottom Input Field area -->
             <div class="input-area">
                 <form id="chatForm">
-                    <input type="text" id="userInput" placeholder="Ask Smart Box anything..." required
-                        autocomplete="off">
+                    <input type="text" id="userInput" placeholder="Ask Smart Box anything..." required autocomplete="off">
                     <button type="submit" id="sendBtn">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
@@ -74,5 +72,4 @@
     <!-- JavaScript File link -->
     <script src="script.js"></script>
 </body>
-
 </html>
