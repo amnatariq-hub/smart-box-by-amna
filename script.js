@@ -1,15 +1,12 @@
-// Smart Box by Amna - Guaranteed Working Local AI Engine
+// Smart Box by Amna - Real AI Direct Response Engine
 
 const chatForm = document.getElementById('chatForm');
 const userInput = document.getElementById('userInput');
 const chatBox = document.getElementById('chatBox');
 const setKeyBtn = document.getElementById('setKeyBtn');
 
-// Key reset button (Simplified info popup)
 if (setKeyBtn) {
-    setKeyBtn.addEventListener('click', () => {
-        alert("Smart Box Engine is active and ready!");
-    });
+    setKeyBtn.style.display = 'none'; // Hide key button as key is handled internally
 }
 
 // Form submit event
@@ -26,12 +23,16 @@ chatForm.addEventListener('submit', async function(e) {
     // Typing Animation Show Karein
     const typingElement = showTypingIndicator();
 
-    // Smart Local AI Response Fetch (1 Second Delay to look real)
-    setTimeout(() => {
+    // Real AI Response Fetch
+    try {
+        const response = await fetchRealAI(messageText);
         typingElement.remove();
-        const response = generateSmartResponse(messageText);
         appendMessage(response, 'ai');
-    }, 1200);
+    } catch (error) {
+        typingElement.remove();
+        appendMessage("Sorry, server busy hai. Please 2 second baad dobara koshish karein.", 'ai');
+        console.error(error);
+    }
 });
 
 function appendMessage(text, sender) {
@@ -84,23 +85,12 @@ function showTypingIndicator() {
     return messageDiv;
 }
 
-// Smart Intelligent Response Generator Engine
-function generateSmartResponse(query) {
-    const q = query.toLowerCase();
-
-    if (q.includes("hello") || q.includes("hi") || q.includes("hey") || q.includes("aoa") || q.includes("slam")) {
-        return "Hello! Welcome to Smart Box by Amna. How can I help you today?";
-    } else if (q.includes("who created") || q.includes("who made") || q.includes("who are you") || q.includes("owner")) {
-        return "I am Smart Box, an intelligent Web AI Assistant created and developed by Amna!";
-    } else if (q.includes("web development") || q.includes("web dev") || q.includes("html") || q.includes("css")) {
-        return "Web Development is the art of building websites! It mainly consists of HTML (Structure), CSS (Design & Styling), and JavaScript (Logic & Interactivity).";
-    } else if (q.includes("ai") || q.includes("artificial intelligence")) {
-        return "Artificial Intelligence (AI) simulates human intelligence in machines, enabling them to solve problems, learn, and process natural language like I am doing right now!";
-    } else if (q.includes("python") || q.includes("code") || q.includes("programming")) {
-        return "Programming is how we instruct computers to perform tasks. Popular languages include JavaScript, Python, C++, and Java!";
-    } else if (q.includes("project") || q.includes("sir") || q.includes("teacher")) {
-        return "This project 'Smart Box by Amna' showcases modern responsive UI, dynamic DOM manipulation, and smooth asynchronous JavaScript operations.";
-    } else {
-        return `That is a great question about "${query}"! Smart Box processed your input successfully. You can ask me about Web Development, AI, Programming, or my creator Amna!`;
+// Real Free Open AI Fetcher
+async function fetchRealAI(promptText) {
+    const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(promptText)}?model=openai`);
+    if (!response.ok) {
+        throw new Error("Network error");
     }
+    const text = await response.text();
+    return text;
 }
