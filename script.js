@@ -1,4 +1,4 @@
-// Smart Box by Amna - Renewed Script
+// Smart Box by Amna - Updated Script with Working Gemini API
 
 const chatForm = document.getElementById('chatForm');
 const userInput = document.getElementById('userInput');
@@ -53,7 +53,7 @@ chatForm.addEventListener('submit', async function(e) {
         appendMessage(response, 'ai');
     } catch (error) {
         typingElement.remove();
-        appendMessage("Error: Could not get response. Please check your API key or internet connection.", 'ai');
+        appendMessage("Error: " + error.message, 'ai');
         console.error(error);
     }
 });
@@ -109,7 +109,8 @@ function showTypingIndicator() {
 }
 
 async function fetchAIResponse(promptText, apiKey) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    // Official Stable Free Gemini Model Endpoint
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
     
     const response = await fetch(url, {
         method: 'POST',
@@ -125,11 +126,11 @@ async function fetchAIResponse(promptText, apiKey) {
 
     const data = await response.json();
     
-    if (data.candidates && data.candidates[0].content.parts[0].text) {
+    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
         return data.candidates[0].content.parts[0].text;
     } else if (data.error) {
-        throw new Error(data.error.message || "API Error");
+        throw new Error(data.error.message || "API Error from Google");
     } else {
-        throw new Error("Invalid API response format");
+        throw new Error("Unexpected API response structure");
     }
 }
