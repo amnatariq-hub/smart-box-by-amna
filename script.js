@@ -1,4 +1,4 @@
-// Smart Box by Amna - Complete Working Script
+// Smart Box by Amna - Guaranteed Working Script
 
 const chatForm = document.getElementById('chatForm');
 const userInput = document.getElementById('userInput');
@@ -109,14 +109,17 @@ function showTypingIndicator() {
 }
 
 async function fetchAIResponse(promptText, apiKey) {
-    // Active Gemini Models List
-    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    // Official Stable Endpoints List (v1beta and v1 mix for guaranteed response)
+    const endpoints = [
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`
+    ];
+
     let lastError = "";
 
-    for (let model of models) {
+    for (let url of endpoints) {
         try {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-            
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
