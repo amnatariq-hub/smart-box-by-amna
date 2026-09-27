@@ -1,4 +1,4 @@
-// Smart Box by Amna - Updated Script with Working Gemini API
+// Smart Box by Amna - Final Robust Script
 
 const chatForm = document.getElementById('chatForm');
 const userInput = document.getElementById('userInput');
@@ -53,7 +53,7 @@ chatForm.addEventListener('submit', async function(e) {
         appendMessage(response, 'ai');
     } catch (error) {
         typingElement.remove();
-        appendMessage("Error: " + error.message, 'ai');
+        appendMessage("⚠️ Alert: " + error.message, 'ai');
         console.error(error);
     }
 });
@@ -109,28 +109,37 @@ function showTypingIndicator() {
 }
 
 async function fetchAIResponse(promptText, apiKey) {
-    // Official Stable Free Gemini Model Endpoint
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            contents: [{
-                parts: [{ text: promptText }]
-            }]
-        })
-    });
+    // List of models to try if one fails
+    const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'];
+    let lastError = "";
 
-    const data = await response.json();
-    
-    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
-        return data.candidates[0].content.parts[0].text;
-    } else if (data.error) {
-        throw new Error(data.error.message || "API Error from Google");
-    } else {
-        throw new Error("Unexpected API response structure");
+    for (let model of models) {
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{ text: promptText }]
+                    }]
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
+                return data.candidates[0].content.parts[0].text;
+            } else if (data.error) {
+                lastError = data.error.message || "API Error";
+            }
+        } catch (err) {
+            lastError = err.message;
+        }
     }
+
+    throw new Error(lastError || "Could not connect to Gemini API. Please re-check your API Key.");
 }
