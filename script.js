@@ -1,48 +1,70 @@
-// Smart Box by Amna - Main Logic
+// Smart Box by Amna - Renewed Script
 
-// 1. Google Gemini API Key (Aap apni free key yahan replace kar sakti hain)
-const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
-
-// 2. DOM Elements Selection
 const chatForm = document.getElementById('chatForm');
 const userInput = document.getElementById('userInput');
 const chatBox = document.getElementById('chatBox');
+const setKeyBtn = document.getElementById('setKeyBtn');
 
-// 3. Form Submit Event Handler
-chatForm.addEventListener('submit', async function (e) {
+// Key store in browser session
+let userApiKey = localStorage.getItem('amna_gemini_key') || "";
+
+// Key reset button listener
+setKeyBtn.addEventListener('click', () => {
+    askForApiKey(true);
+});
+
+function askForApiKey(force = false) {
+    if (!userApiKey || force) {
+        const inputKey = prompt("Please enter your Free Google Gemini API Key:\n(Get it for free from aistudio.google.com)", userApiKey);
+        if (inputKey) {
+            userApiKey = inputKey.trim();
+            localStorage.setItem('amna_gemini_key', userApiKey);
+            alert("API Key Saved Successfully!");
+        }
+    }
+    return userApiKey;
+}
+
+// Form submit event
+chatForm.addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const messageText = userInput.value.trim();
     if (!messageText) return;
 
-    // User Message Window Mein Add Karein
+    // Check Key
+    const key = askForApiKey();
+    if (!key) {
+        alert("API Key is required to send messages!");
+        return;
+    }
+
+    // User Message Add Karein
     appendMessage(messageText, 'user');
     userInput.value = '';
 
-    // Typing Indicator Show Karein
+    // Typing Animation
     const typingElement = showTypingIndicator();
 
-    // AI Response Fetch Karein
+    // AI Response Fetch
     try {
-        const response = await fetchAIResponse(messageText);
-        // Typing dots ko remove karein aur real AI reply add karein
+        const response = await fetchAIResponse(messageText, key);
         typingElement.remove();
         appendMessage(response, 'ai');
     } catch (error) {
         typingElement.remove();
-        appendMessage("Sorry, main abhi connect nahi ho pa raha. Kripya thori der baad koshish karein ya API Key check karein.", 'ai');
+        appendMessage("Error: Could not get response. Please check your API key or internet connection.", 'ai');
         console.error(error);
     }
 });
 
-// 4. Function: Screen par Message Box Create karna
 function appendMessage(text, sender) {
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message', `${sender}-message`);
 
     const avatarDiv = document.createElement('div');
     avatarDiv.classList.add('avatar');
-
+    
     if (sender === 'ai') {
         avatarDiv.innerHTML = '<i class="fa-solid fa-robot"></i>';
     } else {
@@ -57,12 +79,9 @@ function appendMessage(text, sender) {
     messageDiv.appendChild(contentDiv);
 
     chatBox.appendChild(messageDiv);
-
-    // Auto-scroll down
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// 5. Function: Typing Animation Show karna
 function showTypingIndicator() {
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message', 'ai-message');
@@ -86,20 +105,12 @@ function showTypingIndicator() {
     chatBox.appendChild(messageDiv);
 
     chatBox.scrollTop = chatBox.scrollHeight;
-
     return messageDiv;
 }
 
-// 6. Function: Google Gemini API se Response mangwana
-async function fetchAIResponse(promptText) {
-    // Agar API Key add nahi ki to demo reply dega
-    if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
-        await new Promise(resolve => setTimeout(resolve, 1200)); // Fake delay
-        return "Aapka project tayar hai! Live AI API connect karne ke liye Google AI Studio se FREE Gemini API Key lekar script.js mein replace karein.";
-    }
-
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
+async function fetchAIResponse(promptText, apiKey) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    
     const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -113,10 +124,12 @@ async function fetchAIResponse(promptText) {
     });
 
     const data = await response.json();
-
+    
     if (data.candidates && data.candidates[0].content.parts[0].text) {
         return data.candidates[0].content.parts[0].text;
+    } else if (data.error) {
+        throw new Error(data.error.message || "API Error");
     } else {
-        throw new Error("Invalid API response");
+        throw new Error("Invalid API response format");
     }
 }
